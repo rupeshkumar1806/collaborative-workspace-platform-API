@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,116 +7,207 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ProjectStatus{
+enum ProjectStatus {
   PLANNING
   IN_PROGRESS
   ON_HOLD
   COMPLETED
   ARCHIVED
 }
-enum TaskStatus{
+
+enum TaskStatus {
   TODO
   IN_PROGRESS
   ON_HOLD
   COMPLETED
 }
 
-enum TaskPriority{
+enum TaskPriority {
   LOW
   MEDIUM
   HIGH
 }
-enum UserRoles{
-  MEMBER 
+
+enum UserRoles {
+  MEMBER
   MANAGER
 }
 
-model User{
-  id Int @id @default(autoincrement())
-  name String 
-  email String @unique
-  password String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  projects Project[]
-
-  taskCreated Task[] @relation("TaskCreator")
-
-  assignedTask Task[] @relation("TaskAssignee")
-  comments Comment[]
-  activities Activity[]
-  memberships ProjectMember[]
-
+enum OrganizationRoles {
+  OWNER
+  MEMBER
+  ADMIN
+  VIEWER
 }
 
-model Project{
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Organizations
+  createdOrganizations      Organization[]
+  organizationMemberships   OrganizationMember[]
+  sentInvitations           Invitation[]
+
+  // Projects
+  ownedProjects             Project[]
+  projectMemberships        ProjectMember[]
+
+  // Tasks
+  taskCreated               Task[] @relation("TaskCreator")
+  assignedTask              Task[] @relation("TaskAssignee")
+
+  // Comments & Activities
+  comments                  Comment[]
+  activities                Activity[]
+}
+
+model Organization {
+  id        Int      @id @default(autoincrement())
+  name      String
+
+  creatorId Int
+  creator   User @relation(fields: [creatorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects      Project[]
+  members       OrganizationMember[]
+  invitations   Invitation[]
+  activities    Activity[]
+}
+
+model Invitation {
   id Int @id @default(autoincrement())
-  ownerId Int 
-  owner User @relation(fields:[ownerId],references:[id])
-  name String 
+
+  email String
+
+  organizationId Int
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  invitedBy Int
+  inviter User @relation(fields: [invitedBy], references: [id])
+
+  role OrganizationRoles @default(MEMBER)
+
+  status InvitationStatus @default(PENDING)
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, email])
+}
+
+model Project {
+  id Int @id @default(autoincrement())
+
+  organizationId Int
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  ownerId Int
+  owner User @relation(fields: [ownerId], references: [id])
+
+  name String
   description String?
+
   startDate DateTime?
   dueDate DateTime?
   completedAt DateTime?
+
   status ProjectStatus @default(PLANNING)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   tasks Task[]
   members ProjectMember[]
+  activities Activity[]
 }
 
-model Task{
+model Task {
   id Int @id @default(autoincrement())
 
   projectId Int
-  project Project @relation(fields:[projectId],references:[id])
+  project Project @relation(fields: [projectId], references: [id])
 
-  title String 
+  title String
   description String?
 
   createdBy Int
-  created User @relation("TaskCreator",fields:[createdBy],references:[id])
+  created User @relation("TaskCreator", fields: [createdBy], references: [id])
+
   assignedTo Int
-  assignee User @relation("TaskAssignee",fields:[assignedTo],references:[id])
+  assignee User @relation("TaskAssignee", fields: [assignedTo], references: [id])
 
   status TaskStatus @default(TODO)
   priority TaskPriority @default(MEDIUM)
 
   dueDate DateTime?
+  completedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  completedAt DateTime?
 
   comments Comment[]
   activities Activity[]
 }
 
-model ProjectMember{
+model OrganizationMember {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+
+  organizationId Int
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  role OrganizationRoles @default(MEMBER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, userId])
+}
+
+model ProjectMember {
   id Int @id @default(autoincrement())
 
   projectId Int
-  project Project @relation(fields:[projectId],references:[id])
+  project Project @relation(fields: [projectId], references: [id])
 
   userId Int
-  member User @relation(fields:[userId],references:[id])
+  member User @relation(fields: [userId], references: [id])
 
   role UserRoles @default(MEMBER)
 
   joinedAt DateTime @default(now())
 
-  @@unique([projectId,userId])
-
+  @@unique([projectId, userId])
 }
 
-model Comment{
+model Comment {
   id Int @id @default(autoincrement())
 
-  taskId Int 
-  task Task @relation(fields:[taskId],references:[id])
+  taskId Int
+  task Task @relation(fields: [taskId], references: [id])
 
   userId Int
-  user User @relation(fields:[userId],references:[id])
+  user User @relation(fields: [userId], references: [id])
 
   message String
 
@@ -129,15 +215,23 @@ model Comment{
   updatedAt DateTime @updatedAt
 }
 
-model Activity{
+model Activity {
   id Int @id @default(autoincrement())
-  taskId Int
-  task Task @relation(fields:[taskId],references:[id])
 
   userId Int
-  user User @relation(fields:[userId],references:[id])
+  user User @relation(fields: [userId], references: [id])
+
+  organizationId Int?
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  projectId Int?
+  project Project? @relation(fields: [projectId], references: [id])
+
+  taskId Int?
+  task Task? @relation(fields: [taskId], references: [id])
 
   action String
+  description String?
 
   createdAt DateTime @default(now())
 }
