@@ -15,7 +15,7 @@ const createComment = async (req, res) => {
 
     try {
 
-        // Check task exists
+        // Check task exist
         const task = await prisma.task.findUnique({
             where: {
                 id: taskId
@@ -47,7 +47,7 @@ const createComment = async (req, res) => {
         // Create comment
         const comment = await prisma.comment.create({
             data: {
-                content,
+                message:content,
                 taskId,
                 userId
             }
@@ -121,7 +121,7 @@ const getComments = async (req, res) => {
 };
 
 const updateComment = async (req, res) => {
-    const commentId = Number(req.params.commentId);
+    const commentId = Number(req.params.id);
     const userId = req.user.userId;
     const { content } = req.body;
 
@@ -156,7 +156,7 @@ const updateComment = async (req, res) => {
                 id: commentId
             },
             data: {
-                content
+                message:content,
             }
         });
 
@@ -174,7 +174,7 @@ const updateComment = async (req, res) => {
 };
 
 const deleteComment = async (req, res) => {
-    const commentId = Number(req.params.commentId);
+    const commentId = Number(req.params.id);
     const userId = req.user.userId;
 
     try {
@@ -214,3 +214,5 @@ const deleteComment = async (req, res) => {
         });
     }
 };
+
+module.exports={createComment,getComments,updateComment,deleteComment};

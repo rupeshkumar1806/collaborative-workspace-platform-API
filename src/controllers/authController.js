@@ -89,9 +89,7 @@ const generateAccessToken=(user)=>{
     const payload={
      userId:user.id
     };
-    const accessToken=jwt.sign(payload,process.env.JWT_KEY,{
-        expiresIn:"15m"
-    });
+    const accessToken=jwt.sign(payload,process.env.JWT_KEY);
     console.log("JWT_KEY during sign:", process.env.JWT_KEY);
 
     console.log("Generated:", accessToken);

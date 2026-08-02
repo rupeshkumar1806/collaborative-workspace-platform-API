@@ -5,9 +5,9 @@ const authMiddleware=require('../middleware/authMiddleware');
 const routes=express.Router();
 
 routes.post('/create',authMiddleware,createOrganization);
-routes.get('/get',getOrganizations);
-routes.put('/update', updateOrganization);
-routes.delete('/delete', deleteOrganization);
+routes.get('/get', authMiddleware,getOrganizations);
+routes.put('/update/:id',authMiddleware, updateOrganization);
+routes.delete('/delete/:id',authMiddleware, deleteOrganization);
 
 module.exports=routes;
 

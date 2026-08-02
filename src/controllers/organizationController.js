@@ -105,7 +105,7 @@ const getOrganizations = async (req, res) => {
 
 
 const deleteOrganization = async (req, res) => {
-    const{organizationId}=req.params;
+    const organizationId=req.params.id;
     const userId=req.user.userId;
     const organizationIdNumber = Number(organizationId);
     

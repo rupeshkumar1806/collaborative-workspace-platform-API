@@ -118,3 +118,63 @@ const inviteOrganizationMember = async (req, res) => {
         });
     }
 };
+
+const getinvitedMember = async (req, res) => {
+    const userId=req.user.userId;
+    const organizationId=Number(req.params.organizationId);
+
+    try {
+
+        // Check inviter belongs to organization
+        const membership = await prisma.organizationMember.findUnique({
+            where: {
+                organizationId_userId: {
+                    organizationId,
+                    userId
+                }
+            }
+        });
+
+        if (!membership) {
+            return res.status(403).json({
+                message: "You are not a member of this organization."
+            });
+        }
+
+        // Only OWNER or ADMIN can invite
+        if (
+            membership.role !== "OWNER" &&
+            membership.role !== "ADMIN"
+        ) {
+            return res.status(403).json({
+                message: "Only owner or admin can see invited members."
+            });
+        }
+
+
+        // Create invitation
+       const invitedMembers = await prisma.invitation.findMany({
+    where: {
+        organizationId
+    },
+    orderBy: {
+        createdAt: "desc"
+    }
+});
+
+        return res.status(200).json({
+            message: "Invitation fetched successfully.",
+            invitedMembers
+        });
+
+    } catch (e) {
+        console.log(e);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+};
+
+
+module.exports={inviteOrganizationMember,getinvitedMember};
