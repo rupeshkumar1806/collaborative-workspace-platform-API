@@ -1,6 +1,6 @@
 const prisma=require('../config/prisma')
 const createProject = async (req, res) => {
-    const{name}=req.body;
+    const{name,description,startDate,dueDate}=req.body;
     const organizationId= Number(req.params.organizationId);
     const userId=req.user.userId;
 
@@ -36,7 +36,10 @@ const createProject = async (req, res) => {
             data:{
                 name,
                 organizationId,
-                ownerId:userId
+                ownerId:userId,
+                description,
+                startDate,
+                dueDate
             }
         });
         await tx.projectMember.create({

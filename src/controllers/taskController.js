@@ -36,6 +36,8 @@ const createTask = async (req, res) => {
                 message: "Only managers can create tasks."
             });
         }
+        console.log(req.body);
+
 
         // Check assignee belongs to project
         const assigneeMember = await prisma.projectMember.findUnique({
@@ -65,6 +67,9 @@ const createTask = async (req, res) => {
                 message: "Project not found."
             });
         }
+        console.log("assignee:", assignee);
+console.log("assigneeId:", assigneeId);
+console.log(typeof assigneeId);
 
         // Transaction
         const task = await prisma.$transaction(async (tx) => {
