@@ -19,4 +19,11 @@ app.use('/api/comment', commentRoutes);
 app.use('/api/invite', inviteRoutes);
 app.use('/api/activity', activityRoutes);
 
+app.get("/", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "Collaborative Workspace Platform API is running 🚀"
+    });
+});
+
 module.exports=app;
