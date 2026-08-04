@@ -6,12 +6,11 @@ The API provides secure authentication, organization and project management, tas
 
 ## Live API
 
-https://your-render-url.onrender.com
+https://collaborative-workspace-platform-api-1.onrender.com
 
 ## Repository
 
 https://github.com/rupeshkumar1806/collaborative-workspace-platform-API
-
 ---
 
 ## Features
@@ -211,6 +210,6 @@ This project is available for learning and demonstration purposes.
 
 ## Author
 
-**Rupesh Kumar**
+Rupesh Kumar
 
 GitHub: https://github.com/rupeshkumar1806
