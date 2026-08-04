@@ -11,6 +11,9 @@ const createProject = async (req, res) => {
 }
 
     try {
+        console.log("req.user:", req.user);
+console.log("organizationId:", organizationId);
+console.log("userId:", userId);
 
         const member=await prisma.organizationMember.findUnique({
             where:{
@@ -163,7 +166,7 @@ if (!member) {
 
 const deleteProject = async (req, res) => {
     const userId=req.user.userId;
-    const projectId = Number(req.params.projectId);
+    const projectId = Number(req.params.id);
     
     try {
 

@@ -7,6 +7,6 @@ const routes=express.Router();
 routes.post('/create/:projectId',authMiddleware,createTask);
 routes.get('/get/:projectId',authMiddleware,getTasks);
 routes.put('/update/:projectId/:taskId',authMiddleware, updateTask);
-routes.delete('/delete/:id',authMiddleware, deleteTask);
+routes.delete('/delete/:projectId/:taskId',authMiddleware, deleteTask);
 
 module.exports=routes;
