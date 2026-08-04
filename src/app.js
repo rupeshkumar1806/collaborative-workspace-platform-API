@@ -20,10 +20,11 @@ app.use('/api/invite', inviteRoutes);
 app.use('/api/activity', activityRoutes);
 
 app.get("/", (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: "Collaborative Workspace Platform API is running 🚀"
-    });
+  res.status(200).json({
+    name: "Collaborative Workspace Platform API",
+    version: "1.0.0",
+    status: "online",
+    documentation: "Refer to the GitHub README for API endpoints."
+  });
 });
-
 module.exports=app;
